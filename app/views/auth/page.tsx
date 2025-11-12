@@ -8,33 +8,24 @@ import { z } from "zod"
 import { loginSchema } from "@/app/lib/login"
 import { useForm } from "react-hook-form"
 import { useRouter, useSearchParams } from "next/navigation"
-import {AxiosError, AxiosResponse } from "axios"
+import { AxiosError, AxiosResponse } from "axios"
 import httpClient from "@/app/helpers/http-client"
 
+import { useAuthStore } from "@/app/stores/auth"
+import { ResponseAuthLogin } from "@/app/interface/auth"
+
 type LoginFormData = z.infer<typeof loginSchema>
-
-interface ResponseLogin {
-    access_token: string
-    user: {
-        id: string
-        email: string
-        name?: string
-    }
-}
-
-interface ErrorResponse {
-    error?: string
-    message?: string
-}
 
 export default function LoginPage() {
     const router = useRouter()
     const searchParams = useSearchParams()
     const redirectedFrom = searchParams.get('redirectedFrom')
-    
+
     const [isHovering, setIsHovering] = useState(false)
-    const [loginError, setLoginError] = useState<string | null>(null)
-    
+    const [loginError, setLoginError] = useState<string>("")
+
+    const { saveSession } = useAuthStore()
+
     const {
         register,
         handleSubmit,
@@ -42,7 +33,7 @@ export default function LoginPage() {
     } = useForm<LoginFormData>({
         resolver: zodResolver(loginSchema),
         defaultValues: {
-            email: "jaico3456789@gmail.com",
+            email: "user@gmail.com",
             password: "12345678",
         },
     })
@@ -56,31 +47,31 @@ export default function LoginPage() {
     }
 
     const onSubmit = async (data: LoginFormData) => {
-        setLoginError(null)
-        
+        setLoginError("")
+
         try {
-            const res: AxiosResponse<ResponseLogin> = await httpClient.post(
-                "/auth/login", 
+            const res: AxiosResponse<ResponseAuthLogin> = await httpClient.post(
+                "auth/login",
                 data
             )
-            
+
             console.log(res)
-            
+
             if (res.data.access_token) {
-                localStorage.setItem('token', res.data.access_token)
-                localStorage.setItem('user', JSON.stringify(res.data.user))
+                saveSession({
+                    ...res.data.user,
+                    token: res.data.access_token,
+                })
                 redirectUser()
             }
         } catch (error) {
             console.log(error)
-            
+
             if (error instanceof AxiosError) {
-                const errorData = error.response?.data as ErrorResponse | undefined
-                
-                if (errorData?.error && !loginError) {
+                const errorData = error.response?.data
+
+                if (errorData?.error && loginError.length === 0) {
                     setLoginError(errorData.error)
-                } else if (errorData?.message && !loginError) {
-                    setLoginError(errorData.message)
                 }
             }
         }
@@ -133,23 +124,24 @@ export default function LoginPage() {
                         )}
                     </div>
 
-                    {/* --- MOSTRAR ERROR DE LOGIN AQUÍ --- */}
+                    {/* --- ERROR DE LOGIN --- */}
                     {loginError && (
                         <span className="text-red-500 text-sm text-center">{loginError}</span>
                     )}
 
-                    {/* --- BOTÓN ACTUALIZADO --- */}
+                    {/* --- BOTÓN --- */}
                     <button
                         type="submit"
-                        disabled={isSubmitting} // Deshabilitar si se está enviando
-                        onMouseEnter={() => setIsHovering(true)}
+                        disabled={isSubmitting}
+                        onMouseEnter={() => !isSubmitting && setIsHovering(true)} // ← Evitar hover si está enviando
                         onMouseLeave={() => setIsHovering(false)}
-                        className={`mt-4 px-6 py-2 rounded-full border border-[#C4300B] font-bold transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed ${isHovering && !isSubmitting ? "bg-[#C4300B] text-white" : "bg-white text-black border-[#C4300B]"
+                        className={`mt-4 px-6 py-2 rounded-full border border-[#C4300B] font-bold transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed ${isHovering && !isSubmitting
+                                ? "bg-[#C4300B] text-white"
+                                : "bg-white text-black border-[#C4300B]"
                             }`}
                     >
                         {isSubmitting ? "Accediendo..." : "Acceder"}
                     </button>
-
                     {/* Info Text */}
                     <p className="font-italic text-xs text-black text-center mt-2 leading-relaxed max-w-xs">
                         Si no posee una cuenta, solicite al Administrador generarle una
