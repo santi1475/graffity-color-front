@@ -41,7 +41,7 @@ export const MENU_ITEMS: MenuItemType[] = [
     key: "usuarios",
     icon: "fas fa-users",
     label: "Usuarios",
-    route: { name: "dashboards.ecommerce" },
+    route: { name: "access.users" },
     parentKey: "usuarios",
   },
   {

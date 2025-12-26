@@ -2,7 +2,7 @@
     <DefaultLayout>
         <b-row class="justify-content-center">
             <b-col cols="12">
-                <b-card no-body>
+                <b-card>
                     <b-card-header>
                         <b-row class="align-items-center justify-content-between">
                             <b-col lg="3">
@@ -168,7 +168,7 @@ type TVueSwalInstace = typeof Swal & typeof Swal.fire;
 
 const roles = ref<Role[]>([]);
 const ModalRegisterRole = ref<boolean>(false);
-const themeColor = ref<string>("primary");
+const themeColor = ref("primary" as const);
 const name = ref<string | null>(null);
 const permissionSelected = ref<string[]>([]);
 const roleSelected = ref<Role | undefined>(undefined);

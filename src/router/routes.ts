@@ -115,7 +115,17 @@ const accesRoutes = [
       authRequired: true,
       permission: 'all',
     },
-    component: () => import("@/views/roles/index.vue"), //cabiar
+    component: () => import("@/views/roles/index.vue"), 
+  },
+  {
+    path: "/users",
+    name: "access.users",
+    meta: {
+      title: setTitle("Usuarios"),
+      authRequired: true,
+      permission: 'all',
+    },
+    component: () => import("@/views/users/index.vue"), 
   }
 ];
 
