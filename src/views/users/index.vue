@@ -14,6 +14,24 @@
                                 </b-button>
                             </b-col>
                         </b-row>
+                        <b-row class="align-items-center pt-1">
+                            <b-col lg="3">
+                                <b-form-input
+                                    type="text"
+                                    id="search"
+                                    v-model="search"
+                                    placeholder="Buscar por nombre"
+                                />
+                            </b-col>
+                            <b-col lg="3" md="3">
+                                <b-button type="button" variant="success" @click="list">
+                                    <i class="fas fa-search"></i>
+                                </b-button>
+                                <b-button type="button" variant="dark" @click="reset" class="mx-2">
+                                    <i class="fas fa-sync"></i>
+                                </b-button>
+                            </b-col>
+                        </b-row>
                     </b-card-header>
                     <b-card-body class="pt-0">
                         <b-table-simple responsive class="mb-0 table-centered">
@@ -208,6 +226,7 @@ import { onMounted, ref, watch } from 'vue';
 import type { UserResponse } from '@/types/Users';
 import Swal from "sweetalert2/dist/sweetalert2.js";
 import { clear } from 'console';
+import { FILE } from 'dns';
 type TVueSwalInstace = typeof Swal & typeof Swal.fire;
 
 const users = ref<User[]>([]);
@@ -223,14 +242,14 @@ const roles = ref<RoleUser[]>([]);
 const name = ref<string>("");
 const surname = ref<string>("");
 const email = ref<string>("");
-const phone = ref<string>("");
-const role_id = ref<number>(0);
+const phone = ref<number>(0);
+const role_id = ref<string>("");
 const type_document = ref<string>("DNI");
 const n_document = ref<number>(0);
 const gender = ref<string>("M");
 const state = ref<number>(1);
 const password = ref<string>("");
-const IMAGEN_PREVIZUALIZA = ref<string | ArrayBuffer | null>(null);
+const IMAGEN_PREVIZUALIZA = ref<string | ArrayBuffer | null>("");
 const FILE_AVATAR = ref<File | undefined>(undefined);
 
 const list = async () => {
@@ -288,16 +307,19 @@ const store = async () =>{
             );
             return;
         }
-        if(!password.value){
-            if(!userSelected.value){
-                (Swal as TVueSwalInstace).fire(
-                    "Upps!",
-                    "Necesitas ingresar la contraseña del usuario.",
-                    "error"
-                );
-                return;
+        if (!userSelected.value){
+            if(!password.value){
+                if(!userSelected.value){
+                    (Swal as TVueSwalInstace).fire(
+                        "Upps!",
+                        "Necesitas ingresar la contraseña del usuario.",
+                        "error"
+                    );
+                    return;
+                }
             }
         }
+        
 
         let formData = new FormData();
         formData.append("name", name.value);
@@ -321,8 +343,8 @@ const store = async () =>{
             await HttpClient.post(
             "users",formData)
             :
-            await HttpClient.put(
-            `users/${userSelected.value.id}`,formData);
+            await HttpClient.post(
+            "users/"+userSelected.value?.id,formData);
             
         
         console.log(res);
@@ -363,14 +385,56 @@ const store = async () =>{
             );
         }
     }
-
 }
 
 const editUser = (user:User) =>{
-
+    ModalRegisterUser.value = true;
+    userSelected.value = user;
+    name.value = userSelected.value.name;
+    surname.value = userSelected.value.surname;
+    email.value = userSelected.value.email;
+    phone.value = userSelected.value.phone;
+    IMAGEN_PREVIZUALIZA.value = user.avatar ?? '';
+    FILE_AVATAR.value = undefined;
+    type_document.value = user.type_document ?? '';
+    n_document.value = user.n_document;
+    gender.value = user.gender;
+    role_id.value = user.role_id;
 }
-const deleteUser = (user:User) =>{
 
+const deleteUser = (user:User) =>{
+    try{
+        (Swal as TVueSwalInstace)
+            .fire({
+                title: "¿Estás seguro?",
+                text: `¿Quietes eliminar el usuario ${user.name} y sus permisos asociados?`,
+                icon: "warning",
+                showCancelButton: true,
+                confirmButtonColor: "#3085d6",
+                cancelButtonColor: "#d33",
+                confirmButtonText: "Sí, eliminar",
+                cancelButtonText: "Cancelar",
+            })
+            .then(async (result :any) => {
+                if(result.isConfirmed){
+                    const res : AxiosResponse<UserResponse> = await HttpClient.delete(
+                        "users/" + user.id
+                    );
+                    console.log(res);
+                    (Swal as TVueSwalInstace).fire(
+                        "Eliminado!",
+                        "El usuario '" + user.full_name + "' ha sido eliminado",
+                        "success"
+                    );
+                    let index = users.value.findIndex(usr => usr.id === user.id);
+                    if(index !== -1){
+                        users.value.splice(index, 1);
+                    }
+                }
+            });
+    }catch(error){
+        console.error(error);
+    }
 }
 const loadFile = ($event:any) => {
     if($event.target.files[0].type.indexOf("image") < 0){
@@ -393,17 +457,23 @@ const clearfile = () => {
     name.value = "";
     surname.value = "";
     email.value = "";
-    phone.value = '';
+    phone.value = 0;
     state.value = 1;
-    role_id.value = 0;
     type_document.value = "";
     n_document.value = 0;
     IMAGEN_PREVIZUALIZA.value = "";
     FILE_AVATAR.value = undefined;
     gender.value = '';
     password.value = '';
-    role_id.value = 0;
+    role_id.value = "";
 }
+const reset = () => {
+    search.value = null;
+    list();
+}
+watch(currentPage, (value) => {
+    list();
+});
 watch(ModalRegisterUser, (value) => {
     if (value == false){
         clearfile();
