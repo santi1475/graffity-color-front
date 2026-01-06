@@ -77,7 +77,7 @@
             <b-form-group class="row mt-3">
               <div class="form-switch-success">
                 <b-form-checkbox switch>
-                  By registering you agree to the Rizz
+                  By registering you agree to the AlphaTech
                   <a href="#" class="text-primary">Terms of Use</a>
                 </b-form-checkbox>
               </div>

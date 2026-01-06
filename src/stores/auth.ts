@@ -36,7 +36,7 @@ export const useAuthStore = defineStore("auth_store", () => {
         return false;
       }
     }
-    return false;
+    return true;
   }
 
   return {

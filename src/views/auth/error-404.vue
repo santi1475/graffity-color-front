@@ -10,7 +10,7 @@
             <h4 class="mt-3 mb-1 fw-semibold text-white fs-18">
               Oops! Sorry page does not found
             </h4>
-            <p class="text-muted fw-medium mb-0">Back to dashboard of Rizz</p>
+            <p class="text-muted fw-medium mb-0">Back to dashboard</p>
           </div>
         </b-card-body>
         <b-card-body class="pt-0">

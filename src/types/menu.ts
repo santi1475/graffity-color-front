@@ -15,6 +15,8 @@ export type MenuItemType = {
   target?: string;
   disabled?: boolean;
   children?: MenuItemType[];
+  permission?: string;
+  permissions?: string[];
 };
 
 export type SubMenus = {
