@@ -29,7 +29,7 @@
                         <b-form-select id="type_category_list" v-model="categorie_id">
                             <option value="">Selec. Categoria</option>
                             <template v-for="(categorie, index) in categories" :key="index">
-                                <option :value="categorie.id">{{ categorie.name }}</option>
+                                <option :value="categorie.id">{{ categorie.title }}</option>
                             </template>
                         </b-form-select>
                     </b-col>
@@ -173,12 +173,15 @@
 </template>
 <script setup lang="ts">
 import DefaultLayout from '@/layouts/DefaultLayout.vue';
-import { ref } from 'vue';
+import { onMounted, ref } from 'vue';
+import HttpClient from '@/helpers/http-client';
+import type { AxiosResponse } from 'axios';
+import { UNITS, type ProductConfigResponse } from '@/types/products';
 
 const title = ref<string>("");
 const sku = ref<string>("");
 const categorie_id = ref<string>("");
-const categories = ref<any[]>([]);
+const categories = ref<ProductCategorie[]>([]);
 const price_general = ref<number>(0);
 const price_company = ref<number>(0);
 const description = ref<string>("");
@@ -191,7 +194,184 @@ const is_isc = ref<number>(0);
 const percentage_isc = ref<number>(0);
 const is_especial_nota = ref<number>(0);
 const include_igv = ref<number>(1);
-const unidad_medida = ref<string>("");
-const units = ref<any[]>([]);
+const unidad_medida = ref<string>("NIU");
+const units = ref<ProductsUnit[]>(UNITS);
 const stock = ref<number>(0);
+const FILE_IMAGEN = ref<File | null>(null);
+const IMAGEN_PREVIZUALIZA = ref<string | ArrayBuffer | null>(null);
+const currentPage = ref<number>(1);
+const search = ref<string | null>(null);
+
+
+import Swal from "sweetalert2/dist/sweetalert2.js";
+import type { ProductCategorie, ProductResponse, Products, ProductsUnit } from '@/types/products';
+type TVueSwalInstace = typeof Swal & typeof Swal.fire;
+
+const getPriceBaseCF = () => {
+    return include_igv.value == 1 ? price_general.value : Number((price_general.value / 1.18).toFixed(6));
+};
+const getPriceBaseCE = () => {
+    return include_igv.value == 1 ? price_company.value : Number((price_company.value / 1.18).toFixed(6));
+};
+
+const loadFile = ($event:any) => {
+    if($event.target.files[0].type.indexOf("image") < 0){
+        IMAGEN_PREVIZUALIZA.value = null;
+        (Swal as TVueSwalInstace).fire(
+            "Upps!",
+            "Solamente se permiten archivos de tipo imagen.",
+            "error"
+        );
+        return;
+    }
+    FILE_IMAGEN
+.value = $event.target.files[0];
+    let reader = new FileReader();
+    if(FILE_IMAGEN
+.value){
+        reader.readAsDataURL(FILE_IMAGEN
+    .value);
+        reader.onloadend = () => IMAGEN_PREVIZUALIZA.value = reader.result;
+    }
+}
+
+const list = async () => {
+    try {
+        const res: AxiosResponse<ProductConfigResponse> = await HttpClient.get(
+            'products/config');
+        console.log(res);
+        categories.value = res.data.categories;
+        
+    } catch (error) {
+        console.error("Error fetching roles:", error);
+    }
+};
+
+const store = async()=>{
+    try{
+        if(!title.value.trim){
+            (Swal as TVueSwalInstace).fire(
+                "Upps!",
+                "El nombre del producto es obligatorio.",
+                "warning"
+            );
+            return;
+        }
+        if(!sku.value){
+            (Swal as TVueSwalInstace).fire(
+                "Upps!",
+                "El sku del producto es obligatorio.",
+                "warning"
+            );
+            return;
+        }
+        if(!categorie_id.value){
+            (Swal as TVueSwalInstace).fire(
+                "Upps!",
+                "La categoria del producto es obligatoria.",
+                "warning"
+            );
+            return;
+        }
+        if(!unidad_medida.value){
+            (Swal as TVueSwalInstace).fire(
+                "Upps!",
+                "La unidad de medida del producto es obligatoria.",
+                "warning"
+            );
+            return;
+        }
+        if(!description.value){
+            (Swal as TVueSwalInstace).fire(
+                "Upps!",
+                "La descripción del producto es obligatoria.",
+                "warning"
+            );
+            return;
+        }
+        if(!is_discount.value){
+            (Swal as TVueSwalInstace).fire(
+                "Upps!",
+                "Debe seleccionar si el producto tiene descuento o no.",
+                "warning"
+            );
+            return;
+        }
+        if(is_isc.value==2 && max_discount.value ==0){
+            (Swal as TVueSwalInstace).fire(
+                "Upps!",
+                "Debe poner el porcentaje del ISC.",
+                "warning"
+            );
+            return;
+        }
+        if(!FILE_IMAGEN.value){
+            (Swal as TVueSwalInstace).fire(
+                "Upps!",
+                "La imagen del producto es obligatoria.",
+                "warning"
+            );
+            return;
+        }
+        if(price_general.value < 0){
+            (Swal as TVueSwalInstace).fire(
+                "Upps!",
+                "El precio para cliente final debe ser mayor a 0.",
+                "warning"
+            );
+            return;
+        }
+        if(price_company.value < 0){
+            (Swal as TVueSwalInstace).fire(
+                "Upps!",
+                "El precio para un cliente empresa debe ser mayor a 0.",
+                "warning"
+            );
+            return;
+        }
+        if(stock.value < 0){
+            (Swal as TVueSwalInstace).fire(
+                "Upps!",
+                "El stock del producto debe ser mayor o igual a 0.",
+                "warning"
+            );
+            return;
+        }
+        let formData = new FormData();
+        formData.append("title",title.value);
+        formData.append("sku",sku.value);
+        formData.append("categorie_id",categorie_id.value);
+        formData.append("price_general",price_general.value+"");
+        formData.append("price_company",price_company.value+"");
+        formData.append("description",description.value);
+        formData.append("is_discount",is_discount.value+"");
+        formData.append("max_discount",max_discount.value+"");
+        formData.append("disponiblidad",disponiblidad.value+"");
+        formData.append("include_igv",include_igv.value+"");
+        formData.append("is_icbper",is_icbper.value+"");
+        formData.append("is_ivap",is_ivap.value+"");
+        formData.append("unidad_medida",unidad_medida.value+"");
+        formData.append("stock",stock.value+"");
+
+        formData.append("is_isc",is_isc.value+"");
+        formData.append("percentage_isc",percentage_isc.value+"");
+        formData.append("is_especial_nota",is_especial_nota.value+"");
+        formData.append("image",FILE_IMAGEN.value);
+
+        const res: AxiosResponse<ProductResponse> = await HttpClient.post('products',formData);
+        console.log(res);
+    }
+    catch(error:any){
+        if(error.response?.data){
+            (Swal as TVueSwalInstace).fire(
+                "Upps!",
+                error.response?.data.message,
+                "error"
+            );
+        }
+    }//1:45
+}
+onMounted(()=>{
+    list();
+});
 </script>
