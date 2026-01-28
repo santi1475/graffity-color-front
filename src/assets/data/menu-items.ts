@@ -68,7 +68,7 @@ export const MENU_ITEMS: MenuItemType[] = [
       {
         key: "list_products",
         label: "Listar",
-        route: { name: "dashboards.ecommerce" },
+        route: { name: "products.list" },
         parentKey: "products",
         permission: 'list_product',
       },

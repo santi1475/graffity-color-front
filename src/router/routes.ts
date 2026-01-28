@@ -15,17 +15,17 @@ const authRoutes = [
       authLogin: true,
     },
     component: () => import("@/views/auth/login.vue"),
-  },
-  {
-    path: "/products",
-    name: "products",
-    meta: {
-      title: setTitle("Products"),
-      authRequired: true,
-      permission: 'all',
-    },
-    component: () => import("@/views/dashboards/ecommerce/index.vue"), //cabiar
   }
+  // {
+  //   path: "/products",
+  //   name: "products",
+  //   meta: {
+  //     title: setTitle("Products"),
+  //     authRequired: true,
+  //     permission: 'all',
+  //   },
+  //   component: () => import("@/views/dashboards/ecommerce/index.vue"), //cabiar
+  // }
   // {
   //   path: "/auth/register",
   //   name: "auth.register",
@@ -158,6 +158,16 @@ const comercialRoutes = [
       permission: 'register_product',
     },
     component: () => import("@/views/product/register.vue"), 
+  },
+  {
+    path: "/products",
+    name: "products.list",
+    meta: {
+      title: setTitle("Lista de Productos"),
+      authRequired: true,
+      permission: 'list_product',
+    },
+    component: () => import("@/views/product/index.vue"), 
   }
 ]
 

@@ -360,6 +360,23 @@ const store = async()=>{
 
         const res: AxiosResponse<ProductResponse> = await HttpClient.post('products',formData);
         console.log(res);
+        
+        if(res.data.code=405){
+            (Swal as TVueSwalInstace).fire(
+                "Upps!",
+                res.data.message,
+                "error"
+            );
+            clearFile();
+        }else{
+            (Swal as TVueSwalInstace).fire(
+                "¡Éxito!",
+                res.data.message,
+                "success"
+            );
+            clearFile();
+        }
+
     }
     catch(error:any){
         if(error.response?.data){
@@ -369,8 +386,30 @@ const store = async()=>{
                 "error"
             );
         }
-    }//1:45
+    }
 }
+const clearFile = () => {
+    title.value = "";
+    sku.value = "";
+    categorie_id.value = "";
+    price_general.value = 0;
+    price_company.value = 0;
+    description.value = "";
+    is_discount.value = 1;
+    max_discount.value = 0;
+    disponiblidad.value = 1;
+    is_icbper.value = 0;
+    is_ivap.value = 0;
+    is_isc.value = 0;
+    percentage_isc.value = 0;
+    is_especial_nota.value = 0;
+    include_igv.value = 1;
+    unidad_medida.value = "NIU";
+    stock.value = 0;
+    FILE_IMAGEN.value = null;
+    IMAGEN_PREVIZUALIZA.value = null;
+}
+
 onMounted(()=>{
     list();
 });
