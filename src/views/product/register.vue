@@ -235,7 +235,7 @@ const loadFile = ($event:any) => {
     }
 }
 
-const list = async () => {
+const config = async () => {
     try {
         const res: AxiosResponse<ProductConfigResponse> = await HttpClient.get(
             'products/config');
@@ -243,7 +243,7 @@ const list = async () => {
         categories.value = res.data.categories;
         
     } catch (error) {
-        console.error("Error fetching roles:", error);
+        console.error(error);
     }
 };
 
@@ -411,6 +411,6 @@ const clearFile = () => {
 }
 
 onMounted(()=>{
-    list();
+    config();
 });
 </script>

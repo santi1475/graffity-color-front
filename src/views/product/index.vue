@@ -21,12 +21,37 @@
                         </b-row>
                         <b-row class="align-items-center pt-1">
                             <b-col lg="3">
+                                <label for="state-product" class="col-form-label text-lg-end">Buscar: </label>
                                 <b-form-input
                                     type="text"
                                     id="search"
                                     v-model="search"
                                     placeholder="Buscar por nombre o sku"
                                 />
+                            </b-col>
+                            <b-col lg="2">
+                                <label for="state-product" class="col-form-label text-lg-end">Categoria: </label>
+                                <b-form-select id="type_category_list" v-model="categorie_id">
+                                    <option value="">Selec. Categoria</option>
+                                    <template v-for="(categorie, index) in categories" :key="index">
+                                        <option :value="categorie.id">{{ categorie.title }}</option>
+                                    </template>
+                                </b-form-select>
+                            </b-col>
+                            <b-col lg="2">
+                                <label for="state-product" class="col-form-label text-lg-end">Estado: </label>
+                                <b-form-radio name="state" @click="state = 1" value="1" :checked="state == 1">Activo</b-form-radio>
+                                <b-form-radio name="state" @click="state = 2" value="2" :checked="state == 2">Inactivo</b-form-radio>
+                                <b-form-radio name="state" @click="state = 0" value="0" :checked="state == 0">Todos</b-form-radio>
+                            </b-col>
+                            <b-col lg="2">
+                                <label for="type_units_list" class="col-form-label text-lg-end">Unidad de medida: </label>
+                                <b-form-select id="type_units_list" v-model="unidad_medida">
+                                    <option value="">Selec. Unidad</option>
+                                    <template v-for="(unit, index) in units" :key="index">
+                                        <option :value="unit.code">{{ unit.name }}</option>
+                                    </template>
+                                </b-form-select>
                             </b-col>
                             <b-col lg="3" md="3">
                                 <b-button type="button" variant="success" @click="list">
@@ -129,7 +154,7 @@
 <script setup lang="ts">
 import HttpClient from '@/helpers/http-client';
 import DefaultLayout from '@/layouts/DefaultLayout.vue';
-import type { Product, Products, ProductResponse } from '@/types/products';
+import { type Product, type Products, type ProductResponse, type ProductCategorie, type ProductsUnit, UNITS, type ProductConfigResponse } from '@/types/products';
 import type { AxiosResponse } from 'axios';
 import { onMounted, ref, watch } from 'vue';
 import Swal from "sweetalert2/dist/sweetalert2.js";
@@ -143,9 +168,13 @@ const search = ref<string | null>(null);
 const ModalRegisterProduct = ref<boolean>(false);
 const themeColor = ref("primary" as const);
 const productSelected = ref<Product | undefined>(undefined);
+const categorie_id = ref<string>("");
+const categories = ref<ProductCategorie[]>([]);
+const unidad_medida = ref<string>("");
+const units = ref<ProductsUnit[]>(UNITS);
 
 const name = ref<string>("");
-const state = ref<number>(1);
+const state = ref<number>(0);
 const IMAGEN_PREVIZUALIZA = ref<string | ArrayBuffer | null>("");
 const FILE_IMAGEN = ref<File | undefined>(undefined);
 
@@ -162,87 +191,17 @@ const list = async () => {
     }
 };
 
-const store = async () =>{
-    try{
-        if(!name.value){
-            (Swal as TVueSwalInstace).fire(
-                "Upps!",
-                "Necesitas ingresar el nombre del producto.",
-                "error"
-            );
-            return;
-        }
-        if(!productSelected.value){
-            (Swal as TVueSwalInstace).fire(
-                "Upps!",
-                "Debes seleccionar un producto para editarlo.",
-                "error"
-            );
-            return;
-        }
-        
-        let formData = new FormData();
-        formData.append("title", name.value);
-        formData.append("state", state.value+"");
-        formData.append("sku", productSelected.value.sku);
-        formData.append("categorie_id", productSelected.value.categorie_id+"");
-        formData.append("price_general", productSelected.value.price_general+"");
-        formData.append("price_company", productSelected.value.price_company+"");
-        formData.append("description", productSelected.value.description);
-        formData.append("is_discount", productSelected.value.is_discount+"");
-        formData.append("max_discount", productSelected.value.max_discount+"");
-        formData.append("disponiblidad", productSelected.value.disponiblidad+"");
-        formData.append("include_igv", productSelected.value.include_igv+"");
-        formData.append("is_icbper", productSelected.value.is_icbper+"");
-        formData.append("is_ivap", productSelected.value.is_ivap+"");
-        formData.append("unidad_medida", productSelected.value.unidad_medida);
-        formData.append("stock", productSelected.value.stock+"");
-        const isIsc = (productSelected.value as Record<string, unknown>).is_isc ?? 0;
-        formData.append("is_isc", `${isIsc}`);
-        formData.append("percentage_isc", productSelected.value.percentage_isc+"");
-        formData.append("is_especial_nota", productSelected.value.is_especial_nota+"");
-        if(FILE_IMAGEN.value){
-            formData.append("image", FILE_IMAGEN.value);
-        }
-
-        const res: AxiosResponse<ProductResponse> =
-            await HttpClient.post(
-            "products/"+productSelected.value?.id,formData);
-            
-        
+const config = async () => {
+    try {
+        const res: AxiosResponse<ProductConfigResponse> = await HttpClient.get(
+            'products/config');
         console.log(res);
-        if(res.data.code == 405){
-            (Swal as TVueSwalInstace).fire(
-                "Upps!",
-                res.data.message,
-                "error"
-            );
-        }else{
-            ModalRegisterProduct.value = false;
-            if(res.data.product){
-                let index = products.value.findIndex((prod) => prod.id === productSelected.value?.id);
-                if(index !== -1){
-                        products.value[index] = res.data.product;
-                }
-            }
-            
-            (Swal as TVueSwalInstace).fire(
-                "Genial!",
-                res.data.message,
-                "success"
-            );
-        }
-    }catch(error: any){
-        console.log(error);
-        if(error.response?.data){
-            (Swal as TVueSwalInstace).fire(
-                "Upps!",
-                error.response?.data.message,
-                "error"
-            );
-        }
+        categories.value = res.data.categories;
+        
+    } catch (error) {
+        console.error(error);
     }
-}
+};
 
 const editProduct = (product:Product) =>{
     ModalRegisterProduct.value = true;
@@ -287,23 +246,7 @@ const deleteProduct = (product:Product) =>{
         console.error(error);
     }
 }
-const loadFile = ($event:any) => {
-    if($event.target.files[0].type.indexOf("image") < 0){
-        IMAGEN_PREVIZUALIZA.value = null;
-        (Swal as TVueSwalInstace).fire(
-            "Upps!",
-            "Solamente se permiten archivos de tipo imagen.",
-            "error"
-        );
-        return;
-    }
-    FILE_IMAGEN.value = $event.target.files[0];
-    let reader = new FileReader();
-    if(FILE_IMAGEN.value){
-        reader.readAsDataURL(FILE_IMAGEN.value);
-        reader.onloadend = () => IMAGEN_PREVIZUALIZA.value = reader.result;
-    }
-}
+
 const clearfile = () => {
     name.value = "";
     state.value = 1;
@@ -326,5 +269,6 @@ watch(ModalRegisterProduct, (value) => {
 });
 onMounted(() => {
     list();
+    config();
 });
 </script>
