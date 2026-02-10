@@ -26,7 +26,7 @@ export const MENU_ITEMS: MenuItemType[] = [
     label: "Roles y Permisos",
     route: { name: "access.roles" },
     parentKey: "roles",
-    permission: 'list_role',
+    permission: 'all',
   },
   {
     key: "usuarios",
@@ -34,7 +34,7 @@ export const MENU_ITEMS: MenuItemType[] = [
     label: "Usuarios",
     route: { name: "access.users" },
     parentKey: "usuarios",
-    permission: 'list_user',
+    permission: 'all',
   },
   {
     key: "Comercial",
@@ -58,6 +58,14 @@ export const MENU_ITEMS: MenuItemType[] = [
     isTitle: false,
     icon: "fas fa-qrcode",
     children: [
+      {
+        key: "register_marca",
+        label: "Registrar Marca",
+        route: { name: "products.marcas" },
+        parentKey: "products",
+        permission: 'register_product',
+      },
+
       {
         key: "register_product",
         label: "Registrar",

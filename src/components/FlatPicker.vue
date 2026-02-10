@@ -13,8 +13,9 @@
 
 <script setup lang="ts">
 import flatpickr from "flatpickr";
+import type { Instance as FlatpickrInstance } from "flatpickr/dist/types/instance";
 
-import { onMounted } from "vue";
+import { onMounted, onUnmounted } from "vue";
 import type { InputType } from "bootstrap-vue-next";
 
 type FlatPickerProps = {
@@ -32,6 +33,8 @@ const props = defineProps<FlatPickerProps>();
 
 const emit = defineEmits(["update:modelValue"]);
 
+let fpInstance: FlatpickrInstance | null = null;
+
 const updateValue = (e: Event) => {
   emit("update:modelValue", (e.target as HTMLInputElement).value);
 };
@@ -39,7 +42,14 @@ const updateValue = (e: Event) => {
 onMounted(() => {
   const ele = document.getElementById(props.id);
   if (ele) {
-    flatpickr(ele, { ...props.options, defaultDate: props.modelValue });
+    fpInstance = flatpickr(ele, { ...props.options, defaultDate: props.modelValue });
+  }
+});
+
+onUnmounted(() => {
+  if (fpInstance) {
+    fpInstance.destroy();
+    fpInstance = null;
   }
 });
 </script>

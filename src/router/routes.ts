@@ -150,6 +150,16 @@ const comercialRoutes = [
     component: () => import("@/views/company/index.vue"), 
   },
   {
+    path: "/products/marcas",
+    name: "products.marcas",
+    meta: {
+      title: setTitle("Registro de Marca"),
+      authRequired: true,
+      permission: 'register_product',
+    },
+    component: () => import("@/views/product/marcas.vue"), 
+  },
+  {
     path: "/products/register",
     name: "products.register",
     meta: {

@@ -429,7 +429,7 @@
   </div>
 </template>
 <script setup lang="ts">
-import { ref, onMounted } from "vue";
+import { ref, onMounted, onUnmounted } from "vue";
 import simplebar from "simplebar-vue";
 import DropDown from "@/components/DropDown.vue";
 import { useLayoutStore } from "@/stores/layout";
@@ -501,20 +501,27 @@ const windowScroll = () => {
   }
 };
 
-const leftSideBarClick = () => {
-  window.addEventListener("click", (e: any) => {
-    const startbar = document.getElementById("startbar");
-    const togglemenu = document.getElementById("togglemenu");
-    if (!(startbar && startbar.contains(e.target))) {
-      if (window.innerWidth < 1441) {
-        if (togglemenu && togglemenu.contains(e.target)) {
-          setLeftSideBarSize("default");
-        } else {
-          setLeftSideBarSize("collapsed");
-        }
+const onClickOutside = (e: MouseEvent) => {
+  const startbar = document.getElementById("startbar");
+  const togglemenu = document.getElementById("togglemenu");
+  if (!(startbar && startbar.contains(e.target as Node))) {
+    if (window.innerWidth < 1441) {
+      if (togglemenu && togglemenu.contains(e.target as Node)) {
+        setLeftSideBarSize("default");
+      } else {
+        setLeftSideBarSize("collapsed");
       }
     }
-  });
+  }
+};
+
+const onScroll = (ev: Event) => {
+  ev.preventDefault();
+  windowScroll();
+};
+
+const onResize = () => {
+  resize();
 };
 
 onMounted(() => {
@@ -522,13 +529,14 @@ onMounted(() => {
   user.value = useAuth.getUser();
   useLayout.init();
   resize();
-  window.addEventListener("scroll", (ev) => {
-    ev.preventDefault();
-    windowScroll();
-  });
-  window.addEventListener("resize", () => {
-    resize();
-  });
-  leftSideBarClick();
+  window.addEventListener("scroll", onScroll);
+  window.addEventListener("resize", onResize);
+  window.addEventListener("click", onClickOutside);
+});
+
+onUnmounted(() => {
+  window.removeEventListener("scroll", onScroll);
+  window.removeEventListener("resize", onResize);
+  window.removeEventListener("click", onClickOutside);
 });
 </script>

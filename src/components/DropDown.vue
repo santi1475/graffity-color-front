@@ -12,7 +12,7 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, ref } from "vue";
+import { onMounted, onUnmounted, ref } from "vue";
 import { Dropdown } from "bootstrap";
 
 type DropDownPropType = {
@@ -24,8 +24,18 @@ type DropDownPropType = {
 defineProps<DropDownPropType>();
 
 const dropdown = ref();
+let bsDropdown: Dropdown | null = null;
 
 onMounted(() => {
-  Dropdown.getOrCreateInstance(dropdown.value);
+  if (dropdown.value) {
+    bsDropdown = Dropdown.getOrCreateInstance(dropdown.value);
+  }
+});
+
+onUnmounted(() => {
+  if (bsDropdown) {
+    bsDropdown.dispose();
+    bsDropdown = null;
+  }
 });
 </script>

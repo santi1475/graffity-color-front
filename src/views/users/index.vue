@@ -58,7 +58,7 @@
                                         {{ user.phone }}
                                     </b-td>
                                     <b-td>
-                                        {{ user.role.name }}
+                                        {{ user.role?.name ?? 'Sin rol' }}
                                     </b-td>
                                     <b-td>
                                         <b-badge variant="primary" v-if="user.state == 1">Activo</b-badge>

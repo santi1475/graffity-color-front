@@ -13,14 +13,19 @@ type ChartJsPropsType = {
 
 const props = defineProps<ChartJsPropsType>();
 
-let chart: Chart;
+let chart: Chart | null = null;
 
 onMounted(() => {
   const canvasTag = <ChartItem>document.getElementById(props.id);
-  chart = new Chart(canvasTag, props.config);
+  if (canvasTag) {
+    chart = new Chart(canvasTag, props.config);
+  }
 });
 
 onUnmounted(() => {
-  chart.clear();
+  if (chart) {
+    chart.destroy();
+    chart = null;
+  }
 });
 </script>
