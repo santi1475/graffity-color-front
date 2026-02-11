@@ -47,7 +47,7 @@
                                 <b-tr v-for="(categorie, index) in categories" :key="index">
                                     <b-td>
                                         <div>
-                                            <img :src="categorie.imagen" 
+                                            <img v-bind:src="categorie.imagen || ''" 
                                                 alt="image" 
                                                 style="border-radius: 50%; width: 52px; height: 52px; object-fit: cover; margin-right: 12px;"
                                             />
@@ -116,14 +116,22 @@
                         {{ " " }}
                         <b-form-radio name="state-user" @click="state = 2" value="2" :checked="state == 2">Inactivo</b-form-radio>
                     </b-col>
-                    <b-col lg="5">
+            </b-row>
+            <b-row>
+                    <b-col lg="6">
+                        <IconSelector 
+                            v-model="icon_name"
+                            label="Icono de Categoria"
+                        />
+                    </b-col>
+                    <b-col lg="6">
                         <label for="avatar-user" class="col-form-label text-lg-end">Imagen de Categoria: </label>
                         <b-input-group class="mb-3">
                             <b-form-file @change="loadFile($event)"  />
                             <b-input-group-text>Upload</b-input-group-text>
                         </b-input-group>
 
-                        <img v-if="IMAGEN_PREVIZUALIZA" :src="IMAGEN_PREVIZUALIZA" alt="" width="100px" class="rounded d-block mx-auto" />
+                        <img v-if="IMAGEN_PREVIZUALIZA" :src="String(IMAGEN_PREVIZUALIZA)" alt="" width="100px" class="rounded d-block mx-auto" />
                     </b-col>
 
             </b-row>
@@ -147,6 +155,7 @@
 <script setup lang="ts">
 import HttpClient from '@/helpers/http-client';
 import DefaultLayout from '@/layouts/DefaultLayout.vue';
+import IconSelector from '@/layouts/components/IconSelector.vue';
 import type { Categorie, Categories } from '@/types/categories';
 import type { AxiosResponse } from 'axios';
 import { onMounted, ref, watch } from 'vue';
@@ -166,16 +175,25 @@ const themeColor = ref("primary" as const);
 const categorieSelected = ref<Categorie | undefined>(undefined);
 
 const name = ref<string>("");
+const icon_name = ref<string>("Package");
 const state = ref<number>(1);
 const IMAGEN_PREVIZUALIZA = ref<string | ArrayBuffer | null>("");
 const FILE_IMAGEN = ref<File | undefined>(undefined);
+
+const normalizeCategorie = (categorie: Categorie): Categorie => {
+    return {
+        ...categorie,
+        icon_name: categorie.icon_name ?? "Package",
+        imagen: categorie.imagen ?? null,
+    };
+};
 
 const list = async () => {
     try {
         const res: AxiosResponse<Categories> = await HttpClient.get(
             "categories?page="+currentPage.value+"&search="+(search.value ? search.value : ""));
         console.log(res);
-        categories.value = res.data.categories;
+        categories.value = res.data.categories.map(normalizeCategorie);
         totalPages.value = res.data.total;
         perPageRows.value = res.data.paginate;
     } catch (error) {
@@ -196,9 +214,9 @@ const store = async () =>{
         let formData = new FormData();
         formData.append("title", name.value);
         formData.append("state", state.value+"");
+        formData.append("icon_name", icon_name.value);
         if(FILE_IMAGEN.value){
-            formData.append("image", FILE_IMAGEN
-        .value);
+            formData.append("image", FILE_IMAGEN.value);
         }
 
         const res: AxiosResponse<CategorieResponse> =
@@ -221,13 +239,13 @@ const store = async () =>{
             ModalRegisterCategorie.value = false;
             if(!categorieSelected.value){
                 if(res.data.categorie){
-                categories.value.unshift(res.data.categorie);
+                    categories.value.unshift(normalizeCategorie(res.data.categorie));
                 }
             } else {
                 let index = categories.value.findIndex((cat) => cat.id === categorieSelected.value?.id);
                 if(index !== -1){
                     if(res.data.categorie){
-                        categories.value[index] = res.data.categorie;
+                        categories.value[index] = normalizeCategorie(res.data.categorie);
                     }
                 }
             }
@@ -254,6 +272,7 @@ const editCategorie = (categorie:Categorie) =>{
     ModalRegisterCategorie.value = true;
     categorieSelected.value = categorie;
     name.value = categorieSelected.value.title;
+    icon_name.value = categorieSelected.value.icon_name ?? "Package";
     IMAGEN_PREVIZUALIZA.value = categorie.imagen ?? '';
     FILE_IMAGEN.value = undefined;
 }
@@ -314,6 +333,7 @@ const loadFile = ($event:any) => {
 }
 const clearfile = () => {
     name.value = "";
+    icon_name.value = "Package";
     state.value = 1;
     IMAGEN_PREVIZUALIZA.value = "";
     FILE_IMAGEN.value = undefined;

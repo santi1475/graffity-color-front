@@ -3,6 +3,11 @@ export type ProductCategorie = {
     title:string,
 }
 
+export type ProductBrand = {
+    id?:string,
+    name:string,
+}
+
 export type Product = {
     id:string,
     title:string,
@@ -43,6 +48,7 @@ export type ProductResponse = {
 
 export type ProductConfigResponse = {
     categories: ProductCategorie[],
+    brands: ProductBrand[],
 }
 export type ProductsUnit ={
     code: string,
