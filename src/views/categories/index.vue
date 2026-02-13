@@ -46,11 +46,26 @@
                             <b-tbody>
                                 <b-tr v-for="(categorie, index) in categories" :key="index">
                                     <b-td>
-                                        <div>
-                                            <img v-bind:src="categorie.imagen || ''" 
-                                                alt="image" 
+                                        <div class="d-flex align-items-center">
+                                            <img
+                                                v-if="categorie.imagen"
+                                                v-bind:src="categorie.imagen"
+                                                alt="image"
                                                 style="border-radius: 50%; width: 52px; height: 52px; object-fit: cover; margin-right: 12px;"
                                             />
+                                            <div
+                                                v-else
+                                                class="d-inline-flex align-items-center justify-content-center bg-light text-secondary"
+                                                style="border-radius: 50%; width: 52px; height: 52px; margin-right: 12px;"
+                                            >
+                                                <component
+                                                    v-if="getIconComponent(categorie.icon_name)"
+                                                    :is="getIconComponent(categorie.icon_name)"
+                                                    :size="26"
+                                                    stroke-width="2"
+                                                />
+                                                <i v-else class="fas fa-image"></i>
+                                            </div>
                                             <span class="mk-2">
                                                 {{ categorie.title }}
                                             </span>
@@ -160,6 +175,7 @@ import type { Categorie, Categories } from '@/types/categories';
 import type { AxiosResponse } from 'axios';
 import { onMounted, ref, watch } from 'vue';
 import type { CategorieResponse } from '@/types/categories';
+import * as lucideIcons from "lucide-vue-next";
 import Swal from "sweetalert2/dist/sweetalert2.js";
 import { clear } from 'console';
 import { FILE } from 'dns';
@@ -179,6 +195,15 @@ const icon_name = ref<string>("Package");
 const state = ref<number>(1);
 const IMAGEN_PREVIZUALIZA = ref<string | ArrayBuffer | null>("");
 const FILE_IMAGEN = ref<File | undefined>(undefined);
+
+const getIconComponent = (iconName?: string | null) => {
+    if (!iconName) return null;
+    const source = (lucideIcons as any).default || lucideIcons;
+    const normalized = iconName.replace(/(^\w|-\w)/g, (segment) =>
+        segment.replace(/-/, "").toUpperCase(),
+    );
+    return source[iconName] || source[normalized] || null;
+};
 
 const normalizeCategorie = (categorie: Categorie): Categorie => {
     return {

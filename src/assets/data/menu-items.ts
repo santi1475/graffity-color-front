@@ -18,7 +18,7 @@ export const MENU_ITEMS: MenuItemType[] = [
     key: "Accesos",
     label: "ACCESS",
     isTitle: true,
-    permissions: ['list_role','list_user']
+    permissions: ["list_role", "list_user"],
   },
   {
     key: "roles",
@@ -26,7 +26,7 @@ export const MENU_ITEMS: MenuItemType[] = [
     label: "Roles y Permisos",
     route: { name: "access.roles" },
     parentKey: "roles",
-    permission: 'all',
+    permission: "all",
   },
   {
     key: "usuarios",
@@ -34,15 +34,22 @@ export const MENU_ITEMS: MenuItemType[] = [
     label: "Usuarios",
     route: { name: "access.users" },
     parentKey: "usuarios",
-    permission: 'all',
+    permission: "all",
   },
   {
     key: "Comercial",
     label: "COMERCIAL",
     isTitle: true,
-    permissions: ['list_categorie','list_product','register_product','list_client','register_sale','list_sale',
-      'register_guia_remision','list_guia_remision'
-    ]
+    permissions: [
+      "list_categorie",
+      "list_product",
+      "register_product",
+      "list_client",
+      "register_sale",
+      "list_sale",
+      "register_guia_remision",
+      "list_guia_remision",
+    ],
   },
   {
     key: "categories",
@@ -50,7 +57,15 @@ export const MENU_ITEMS: MenuItemType[] = [
     label: "Categorías",
     route: { name: "categories.index" },
     parentKey: "categories",
-    permission: 'list_categorie',
+    permission: "list_categorie",
+  },
+  {
+    key: "register_brand",
+    icon: "fas fa-dolly",
+    label: "Registrar Marca",
+    route: { name: "brands.index" },
+    parentKey: "products",
+    permission: "register_product",
   },
   {
     key: "products",
@@ -59,26 +74,18 @@ export const MENU_ITEMS: MenuItemType[] = [
     icon: "fas fa-qrcode",
     children: [
       {
-        key: "register_marca",
-        label: "Registrar Marca",
-        route: { name: "products.marcas" },
-        parentKey: "products",
-        permission: 'register_product',
-      },
-
-      {
         key: "register_product",
         label: "Registrar",
         route: { name: "products.register" },
         parentKey: "products",
-        permission: 'register_product',
+        permission: "register_product",
       },
       {
         key: "list_products",
         label: "Listar",
         route: { name: "products.list" },
         parentKey: "products",
-        permission: 'list_product',
+        permission: "list_product",
       },
     ],
   },
@@ -88,7 +95,7 @@ export const MENU_ITEMS: MenuItemType[] = [
     label: "Clientes",
     route: { name: "dashboards.ecommerce" },
     parentKey: "clients",
-    permission: 'list_client',
+    permission: "list_client",
   },
   {
     key: "sales",
@@ -101,14 +108,14 @@ export const MENU_ITEMS: MenuItemType[] = [
         label: "Registrar",
         route: { name: "dashboards.ecommerce" },
         parentKey: "sales",
-        permission: 'register_sale',
+        permission: "register_sale",
       },
       {
         key: "list_sales",
         label: "Listar",
         route: { name: "dashboards.ecommerce" },
         parentKey: "sales",
-        permission: 'list_sale',
+        permission: "list_sale",
       },
     ],
   },
@@ -123,14 +130,14 @@ export const MENU_ITEMS: MenuItemType[] = [
         label: "Registrar",
         route: { name: "dashboards.ecommerce" },
         parentKey: "guias",
-        permission: 'register_guia_remision',
+        permission: "register_guia_remision",
       },
       {
         key: "list_guia",
         label: "Listar",
         route: { name: "dashboards.ecommerce" },
         parentKey: "guias",
-        permission: 'list_guia_remision',
+        permission: "list_guia_remision",
       },
     ],
   },
@@ -140,6 +147,6 @@ export const MENU_ITEMS: MenuItemType[] = [
     label: "Configuraciones",
     route: { name: "company.index" },
     parentKey: "configurat",
-    permission: 'company',
+    permission: "company",
   },
-]
+];

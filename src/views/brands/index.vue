@@ -46,12 +46,26 @@
                             <b-tbody>
                                 <b-tr v-for="(brand, index) in brands" :key="index">
                                     <b-td>
-                                        <div>
+                                        <div class="d-flex align-items-center">
                                             <img
-                                                v-bind:src="brand.image || ''"
+                                                v-if="brand.image"
+                                                v-bind:src="brand.image"
                                                 alt="image"
                                                 style="border-radius: 50%; width: 52px; height: 52px; object-fit: cover; margin-right: 12px;"
                                             />
+                                            <div
+                                                v-else
+                                                class="d-inline-flex align-items-center justify-content-center bg-light text-secondary"
+                                                style="border-radius: 50%; width: 52px; height: 52px; margin-right: 12px;"
+                                            >
+                                                <component
+                                                    v-if="getIconComponent(brand.icon_name)"
+                                                    :is="getIconComponent(brand.icon_name)"
+                                                    :size="26"
+                                                    stroke-width="2"
+                                                />
+                                                <i v-else class="fas fa-image"></i>
+                                            </div>
                                             <span class="mk-2">
                                                 {{ brand.name }}
                                             </span>
@@ -154,6 +168,7 @@ import HttpClient from '@/helpers/http-client';
 import type { Brand, Brands, BrandResponse } from '@/types/brands';
 import type { AxiosResponse } from 'axios';
 import { onMounted, ref, watch } from 'vue';
+import * as lucideIcons from "lucide-vue-next";
 import Swal from "sweetalert2/dist/sweetalert2.js";
 type TVueSwalInstace = typeof Swal & typeof Swal.fire;
 
@@ -171,6 +186,15 @@ const icon_name = ref<string>("Badge");
 const state = ref<number>(1);
 const IMAGEN_PREVIZUALIZA = ref<string | ArrayBuffer | null>("");
 const FILE_IMAGEN = ref<File | undefined>(undefined);
+
+const getIconComponent = (iconName?: string | null) => {
+    if (!iconName) return null;
+    const source = (lucideIcons as any).default || lucideIcons;
+    const normalized = iconName.replace(/(^\w|-\w)/g, (segment) =>
+        segment.replace(/-/, "").toUpperCase(),
+    );
+    return source[iconName] || source[normalized] || null;
+};
 
 const normalizeBrand = (brand: Brand): Brand => {
     return {
