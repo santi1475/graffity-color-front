@@ -102,7 +102,7 @@
             :ok-variant="themeColor"
             hide-footer
             centered
-            size="lg"
+            size="xl"
             >
             <b-row>
                     <b-col lg="5">

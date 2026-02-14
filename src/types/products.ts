@@ -47,6 +47,7 @@ export type ProductResponse = {
 }
 
 export type ProductConfigResponse = {
+    next_product_id: number,
     categories: ProductCategorie[],
     brands: ProductBrand[],
 }
