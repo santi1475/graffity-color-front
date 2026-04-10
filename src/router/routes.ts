@@ -15,7 +15,7 @@ const authRoutes = [
       authLogin: true,
     },
     component: () => import("@/views/auth/login.vue"),
-  }
+  },
   // {
   //   path: "/products",
   //   name: "products",
@@ -90,7 +90,7 @@ const dashboardRoutes = [
     meta: {
       title: setTitle("Analytics"),
       authRequired: true,
-      permission: 'all',
+      permission: "all",
     },
     component: () => import("@/views/dashboards/analytics/index.vue"),
   },
@@ -100,7 +100,7 @@ const dashboardRoutes = [
     meta: {
       title: setTitle("Ecommerce"),
       authRequired: true,
-      permission: 'all',
+      permission: "all",
     },
     component: () => import("@/views/dashboards/ecommerce/index.vue"),
   },
@@ -113,9 +113,9 @@ const accesRoutes = [
     meta: {
       title: setTitle("Roles y Permisos"),
       authRequired: true,
-      permission: 'list_role',
+      permission: "list_role",
     },
-    component: () => import("@/views/roles/index.vue"), 
+    component: () => import("@/views/roles/index.vue"),
   },
   {
     path: "/users",
@@ -123,10 +123,10 @@ const accesRoutes = [
     meta: {
       title: setTitle("Usuarios"),
       authRequired: true,
-      permission: 'list_user',
+      permission: "list_user",
     },
-    component: () => import("@/views/users/index.vue"), 
-  }
+    component: () => import("@/views/users/index.vue"),
+  },
 ];
 const comercialRoutes = [
   {
@@ -135,9 +135,9 @@ const comercialRoutes = [
     meta: {
       title: setTitle("Categorías"),
       authRequired: true,
-      permission: 'list_categorie',
+      permission: "list_categorie",
     },
-    component: () => import("@/views/categories/index.vue"), 
+    component: () => import("@/views/categories/index.vue"),
   },
   {
     path: "/company",
@@ -145,9 +145,9 @@ const comercialRoutes = [
     meta: {
       title: setTitle("Empresa"),
       authRequired: true,
-      permission: 'all',
+      permission: "all",
     },
-    component: () => import("@/views/company/index.vue"), 
+    component: () => import("@/views/company/index.vue"),
   },
   {
     path: "/brands",
@@ -155,9 +155,9 @@ const comercialRoutes = [
     meta: {
       title: setTitle("Registro de Marca"),
       authRequired: true,
-      permission: 'register_product',
+      permission: "register_product",
     },
-    component: () => import("@/views/brands/index.vue"), 
+    component: () => import("@/views/brands/index.vue"),
   },
   {
     path: "/products/register",
@@ -165,9 +165,9 @@ const comercialRoutes = [
     meta: {
       title: setTitle("Registro de Producto"),
       authRequired: true,
-      permission: 'register_product',
+      permission: "register_product",
     },
-    component: () => import("@/views/product/register.vue"), 
+    component: () => import("@/views/product/register.vue"),
   },
   {
     path: "/products",
@@ -175,12 +175,20 @@ const comercialRoutes = [
     meta: {
       title: setTitle("Lista de Productos"),
       authRequired: true,
-      permission: 'list_product',
+      permission: "list_product",
     },
-    component: () => import("@/views/product/index.vue"), 
-  }
-]
-
+    component: () => import("@/views/product/index.vue"),
+  },
+  {
+    path: "/mobile-scanner/:uuid",
+    name: "products.mobile-scanner",
+    meta: {
+      title: setTitle("Escáner Móvil"),
+      authRequired: false,
+    },
+    component: () => import("@/views/product/MobileScanner.vue"),
+  },
+];
 
 export const allRoute = [
   ...authRoutes,

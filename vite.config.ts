@@ -4,6 +4,8 @@ import { defineConfig } from 'vite';
 import vue from '@vitejs/plugin-vue';
 import Components from 'unplugin-vue-components/vite';
 import { BootstrapVueNextResolver } from 'bootstrap-vue-next';
+import basicSsl from '@vitejs/plugin-basic-ssl'
+
 
 // https://vitejs.dev/config/
 export default defineConfig({
@@ -13,6 +15,7 @@ export default defineConfig({
     Components({
       resolvers: [BootstrapVueNextResolver()],  
     }),
+    basicSsl(),
   ],
   resolve: {
     alias: {
@@ -26,5 +29,5 @@ export default defineConfig({
         silenceDeprecations: ['mixed-decls', 'color-functions', 'global-builtin', 'import'],
       },
     },
-  },
+  }
 });

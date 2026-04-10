@@ -76,8 +76,10 @@ declare module 'vue' {
     MenuItem: typeof import('./src/components/AppMenu/MenuItem.vue')['default']
     MenuItemLink: typeof import('./src/components/AppMenu/MenuItemLink.vue')['default']
     MenuItemWithChildren: typeof import('./src/components/AppMenu/MenuItemWithChildren.vue')['default']
+    PairingModal: typeof import('./src/components/Scanner/PairingModal.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
+    ScannerModal: typeof import('./src/components/Scanner/ScannerModal.vue')['default']
     UIComponentCard: typeof import('./src/components/UIComponentCard.vue')['default']
   }
   export interface ComponentCustomProperties {

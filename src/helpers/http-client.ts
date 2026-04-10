@@ -49,7 +49,7 @@ axios.interceptors.response.use(
       localStorage.removeItem("token");
       localStorage.removeItem("user");
       const baseUrl = import.meta.env.BASE_URL || '/';
-      window.location.href = `${baseUrl}auth/login`;
+      window.location.href = `${baseUrl}auth/sign-in`;
     }
     return Promise.reject(error);
   }
